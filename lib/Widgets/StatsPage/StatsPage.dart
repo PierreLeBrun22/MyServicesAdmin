@@ -9,19 +9,22 @@ const String signOut = 'LOGOUT';
 const List<String> choices = <String>[signOut];
 
 class StatsPage extends StatefulWidget {
-  StatsPage({Key key, this.auth, this.onSignedOut, this.userId})
+  StatsPage(
+      {Key key,
+      this.auth,
+      this.onSignedOut,
+      this.userId})
       : super(key: key);
 
   final BaseAuth auth;
   final VoidCallback onSignedOut;
   final String userId;
-
+  
   @override
   State<StatefulWidget> createState() => new _StatsPageState();
 }
 
 class _StatsPageState extends State<StatsPage> {
-
   _signOut() async {
     try {
       await widget.auth.signOut();
@@ -39,28 +42,27 @@ class _StatsPageState extends State<StatsPage> {
 
   @override
   Widget build(BuildContext context) {
-        return new Expanded(
-            child: new Container(
-                color: Color(0xFF302f33),
-                child: new ListView(children: <Widget>[
-                  _logout(),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Hero(
-                        tag: 'handshake',
-                        child: new Icon(
-                    FontAwesomeIcons.handshake,
-                    color: Color(0xFF2196f3),
-                    size: 100.0,
+    return new Expanded(
+        child: new Container(
+            color: Color(0xFF302f33),
+            child: new ListView(children: <Widget>[
+              _logout(),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Hero(
+                    tag: 'handshake',
+                    child: new Icon(
+                      FontAwesomeIcons.handshake,
+                      color: Color(0xFF2196f3),
+                      size: 100.0,
+                    ),
                   ),
-                      ),
-                      SizedBox(height: 25.0),
-                      _userDetails(
-                          'As', 'zsd', 'sd'),
-                    ],
-                  )
-                ])));
+                  SizedBox(height: 25.0),
+                  _userDetails(),
+                ],
+              )
+            ])));
   }
 
   Widget _logout() {
@@ -88,77 +90,118 @@ class _StatsPageState extends State<StatsPage> {
         ));
   }
 
-  Widget _userDetails(String _company, String _mail, String _pack) {
-    return new Container(
-      margin: EdgeInsets.all(10.0),
-      child: Padding(
-        padding: EdgeInsets.all(20.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+  Widget _userDetails() {
+    return new Column(
+      children: <Widget>[
+        Container(
+          margin: EdgeInsets.all(10.0),
+          child: Padding(
+            padding: EdgeInsets.all(20.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                Text(
-                  'COMPANY',
-                  style: TextStyle(
-                      fontFamily: 'Poppins', fontWeight: FontWeight.bold),
+                StreamBuilder<QuerySnapshot>(
+                  stream: Firestore.instance.collection('user').snapshots(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData)
+                      return Center(child: CircularProgressIndicator());
+
+                    return new Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text(
+                          'USERS',
+                          style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(height: 5.0),
+                        Text(
+                          snapshot.data.documents.length.toString(),
+                          style: TextStyle(
+                              fontFamily: 'Poppins', color: Color(0xFF2196f3)),
+                        )
+                      ],
+                    );
+                  },
                 ),
-                SizedBox(height: 5.0),
-                Text(
-                  _company,
-                  style: TextStyle(
-                      fontFamily: 'Poppins', color: Color(0xFF2196f3)),
-                )
+                StreamBuilder<QuerySnapshot>(
+                  stream:
+                      Firestore.instance.collection('userServices').snapshots(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData)
+                      return Center(child: CircularProgressIndicator());
+
+                    final record = snapshot.data.documents
+                        .where((data) => data.data.containsValue(true));
+                    return new Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text(
+                          'SERVICES USED',
+                          style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(height: 5.0),
+                        Text(
+                          record.length.toString(),
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                              fontFamily: 'Poppins', color: Color(0xFF2196f3)),
+                        )
+                      ],
+                    );
+                  },
+                ),
+                StreamBuilder<QuerySnapshot>(
+                  stream: Firestore.instance.collection('packs').snapshots(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData)
+                      return Center(child: CircularProgressIndicator());
+
+                    return new Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text(
+                          'PACKS',
+                          style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(height: 5.0),
+                        Text(
+                          snapshot.data.documents.length.toString(),
+                          style: TextStyle(
+                              fontFamily: 'Poppins', color: Color(0xFF2196f3)),
+                        )
+                      ],
+                    );
+                  },
+                ),
               ],
             ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Text(
-                  'MAIL',
-                  style: TextStyle(
-                      fontFamily: 'Poppins', fontWeight: FontWeight.bold),
+          ),
+          decoration: new BoxDecoration(
+              color: Color(0xFFffffff),
+              shape: BoxShape.rectangle,
+              boxShadow: <BoxShadow>[
+                new BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 10.0,
+                  offset: new Offset(0.0, 8.0),
                 ),
-                SizedBox(height: 5.0),
-                Text(
-                  _mail,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                      fontFamily: 'Poppins', color: Color(0xFF2196f3)),
-                )
               ],
-            ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Text(
-                  'PACK',
-                  style: TextStyle(
-                      fontFamily: 'Poppins', fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 5.0),
-                Text(
-                  _pack,
-                  style: TextStyle(
-                      fontFamily: 'Poppins', color: Color(0xFF2196f3)),
-                )
-              ],
-            ),
-          ],
+              borderRadius: new BorderRadius.circular(8.0)),
         ),
-      ),
-      decoration: new BoxDecoration(
-          color: Color(0xFFffffff),
-          shape: BoxShape.rectangle,
-          boxShadow: <BoxShadow>[
-            new BoxShadow(
-              color: Colors.black12,
-              blurRadius: 10.0,
-              offset: new Offset(0.0, 8.0),
-            ),
-          ],
-          borderRadius: new BorderRadius.circular(8.0)),
+        Padding(
+          padding:
+              EdgeInsets.only(top: 50.0, bottom: 10.0, right: 10.0, left: 10.0),
+          child: Text("More stats will come soon",
+              style: TextStyle(
+                  fontFamily: 'Satisfy', color: Colors.white, fontSize: 27)),
+        )
+      ],
     );
   }
 }

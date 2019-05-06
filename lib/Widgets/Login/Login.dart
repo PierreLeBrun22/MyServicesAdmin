@@ -56,6 +56,7 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
           setState(() {
             _errorMessageLogin = "This account was not the admin account.";
           });
+          widget.auth.signOut();
         }
       } catch (e) {
         print('Error: $e');
