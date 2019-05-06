@@ -1,26 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:myservicesadmin/services/authentication.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:myservicesadmin/Widgets/PackPage/AddPackPage.dart';
-import 'package:myservicesadmin/Widgets/PackPage/DetailPackPage.dart';
-import 'package:myservicesadmin/services/fetch_data.dart' as dataFetch;
+import 'package:myservicesadmin/Widgets/ServicesPage/AddServicePage.dart';
+import 'package:myservicesadmin/Widgets/ServicesPage/DetailServicePage.dart';
 
-class PackPage extends StatefulWidget {
-  PackPage({Key key, this.auth, this.onSignedOut, this.userId, this.packs})
+class ServicesPage extends StatefulWidget {
+  ServicesPage(
+      {Key key, this.auth, this.onSignedOut, this.userId, this.services})
       : super(key: key);
 
   final BaseAuth auth;
   final VoidCallback onSignedOut;
   final String userId;
-  final List<DocumentSnapshot> packs;
+  final List<DocumentSnapshot> services;
 
   @override
-  State<StatefulWidget> createState() => new _PackPageState();
+  State<StatefulWidget> createState() => new _ServicesPageState();
 }
 
-class _PackPageState extends State<PackPage> {
-
-  
+class _ServicesPageState extends State<ServicesPage> {
   @override
   Widget build(BuildContext context) {
     return new Expanded(
@@ -31,14 +29,14 @@ class _PackPageState extends State<PackPage> {
         ),
         child: ListView.builder(
           padding: const EdgeInsets.only(top: 40.0),
-          itemCount: widget.packs.length,
+          itemCount: widget.services.length,
           itemBuilder: (context, index) {
-            final record = widget.packs[index].data;
+            final record = widget.services[index].data;
             return Dismissible(
-              key: Key(widget.packs[index].documentID),
+              key: Key(widget.services[index].documentID),
               onDismissed: (direction) {
                 setState(() {
-                  widget.packs.removeAt(index);
+                  widget.services.removeAt(index);
                 });
               },
               background: Container(
@@ -92,19 +90,19 @@ class _PackPageState extends State<PackPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Text(
-                  'SERVICES',
+                  'PARTNERS',
                   style: TextStyle(
                       fontFamily: 'Poppins', fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 5.0),
                 Text(
-                  record['services'].length.toString(),
+                  record['partners'].length.toString(),
                   style: TextStyle(
                       fontFamily: 'Poppins', color: Color(0xFF2196f3)),
                 )
               ],
             ),
-            _buttonEdit(context, record['name']),
+            _buttonEdit(context),
           ],
         ),
       ),
@@ -122,9 +120,8 @@ class _PackPageState extends State<PackPage> {
     );
   }
 
-  Widget _buttonEdit(BuildContext context, String name) {
+  Widget _buttonEdit(BuildContext context) {
     return new FloatingActionButton(
-      heroTag: "buttonEdit"+name,
       backgroundColor: Color(0xFF2196f3),
       child: Icon(Icons.create, color: Colors.white),
       onPressed: () => {},
@@ -136,10 +133,8 @@ class _PackPageState extends State<PackPage> {
       alignment: Alignment.bottomRight,
       padding: EdgeInsets.only(right: 10.0, bottom: 10.0),
       child: new FloatingActionButton(
-        heroTag: "AddButton",
         child: Icon(Icons.add),
-        onPressed: () => { Navigator.push(context, MaterialPageRoute(builder: (context) => AddPackPage(services: snapshot.data))) 
-        },
+        onPressed: () => {},
       ),
     );
   }

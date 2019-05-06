@@ -25,6 +25,16 @@ Future<List<Service>> getServicesOpenPack() async {
   return _servicesList;
 }
 
+Future<List<String>> getAllServices() async {
+  List<String> _servicesList = [];
+  CollectionReference ref = Firestore.instance.collection('services');
+  QuerySnapshot eventsQuery = await ref.getDocuments();
+  eventsQuery.documents.forEach((document) {
+    _servicesList.add(document.data['name']);
+  });
+  return _servicesList;
+}
+
 Future<List<Service>> getServicesPack(dynamic doc) async {
   List<Service> _servicesList = [];
   for (var i = 0; i < doc.length; i++) {
@@ -177,30 +187,30 @@ void changePack(String userPack, String newPack, String userId) async {
 
   eventsQuery3.documents.forEach((pack) {
     if (pack['name'] == userPack) {
-        for (var i = 0; i < pack['services'].length ; i++) {
-           eventsQuery2.documents.forEach((userServices) {
+      for (var i = 0; i < pack['services'].length; i++) {
+        eventsQuery2.documents.forEach((userServices) {
           if (userServices.data.containsValue(userId) &&
-            userServices.data.containsValue(pack['services'][i])) {
-          Firestore.instance
-              .collection('userServices')
-              .document(userServices.documentID)
-              .delete();
-            eventsQuery.documents.forEach((user) {
-          if (user.data.containsKey(userId)) {
+              userServices.data.containsValue(pack['services'][i])) {
             Firestore.instance
-                .collection('user')
-                .document(user.documentID)
-                .updateData(
-              {
-                userId + '.usedServices':
-                    user.data[userId]['usedServices'] - 1
-              },
-            );
+                .collection('userServices')
+                .document(userServices.documentID)
+                .delete();
+            eventsQuery.documents.forEach((user) {
+              if (user.data.containsKey(userId)) {
+                Firestore.instance
+                    .collection('user')
+                    .document(user.documentID)
+                    .updateData(
+                  {
+                    userId + '.usedServices':
+                        user.data[userId]['usedServices'] - 1
+                  },
+                );
+              }
+            });
           }
         });
-        }
-        });
-        }
+      }
     }
   });
 }

@@ -7,6 +7,7 @@ import 'package:myservicesadmin/services/fetch_data.dart' as dataFetch;
 import 'package:myservicesadmin/Widgets/UsersPage/UsersPage.dart';
 import 'package:myservicesadmin/Widgets/PackPage/PackPage.dart';
 import 'package:myservicesadmin/Widgets/StatsPage/StatsPage.dart';
+import 'package:myservicesadmin/Widgets/ServicesPage/ServicesPage.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key, this.auth, this.userId, this.onSignedOut})
@@ -114,11 +115,11 @@ class _HomePageState extends State<HomePage> {
                   padding: EdgeInsets.only(top: 60.0),
                   child: new Column(children: <Widget>[
                     new UsersPage(
-                        auth: widget.auth,
-                        onSignedOut: widget.onSignedOut,
-                        userId: widget.userId,
-                        users: snapshot.data.documents,
-                        ),
+                      auth: widget.auth,
+                      onSignedOut: widget.onSignedOut,
+                      userId: widget.userId,
+                      users: snapshot.data.documents,
+                    ),
                   ]),
                 ),
                 _getAppBar(),
@@ -129,7 +130,7 @@ class _HomePageState extends State<HomePage> {
         );
 
       case 2:
-         return StreamBuilder<QuerySnapshot>(
+        return StreamBuilder<QuerySnapshot>(
           stream: Firestore.instance.collection('packs').snapshots(),
           builder: (context, snapshot) {
             if (!snapshot.hasData)
@@ -155,11 +156,52 @@ class _HomePageState extends State<HomePage> {
                   padding: EdgeInsets.only(top: 60.0),
                   child: new Column(children: <Widget>[
                     new PackPage(
-                        auth: widget.auth,
-                        onSignedOut: widget.onSignedOut,
-                        userId: widget.userId,
-                        packs: snapshot.data.documents,
+                      auth: widget.auth,
+                      onSignedOut: widget.onSignedOut,
+                      userId: widget.userId,
+                      packs: snapshot.data.documents,
+                    ),
+                  ]),
+                ),
+                _getAppBar(),
+                _getAppbarWhite(),
+              ],
+            );
+          },
+        );
+
+      case 3:
+        return StreamBuilder<QuerySnapshot>(
+          stream: Firestore.instance.collection('services').snapshots(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData)
+              return new Stack(children: <Widget>[
+                new Container(
+                    padding: EdgeInsets.only(top: 60.0),
+                    child: new Column(children: <Widget>[
+                      new Expanded(
+                          child: new Container(
+                        decoration: BoxDecoration(
+                          color: Color(0xFF302f33),
                         ),
+                        child: Center(child: CircularProgressIndicator()),
+                      ))
+                    ])),
+                _getAppBar(),
+                _getAppbarWhite()
+              ]);
+
+            return new Stack(
+              children: <Widget>[
+                new Container(
+                  padding: EdgeInsets.only(top: 60.0),
+                  child: new Column(children: <Widget>[
+                    new ServicesPage(
+                      auth: widget.auth,
+                      onSignedOut: widget.onSignedOut,
+                      userId: widget.userId,
+                      services: snapshot.data.documents,
+                    ),
                   ]),
                 ),
                 _getAppBar(),
@@ -168,7 +210,6 @@ class _HomePageState extends State<HomePage> {
             );
           },
         );
-
 
       default:
         return new Center(
@@ -222,6 +263,14 @@ class _HomePageState extends State<HomePage> {
               icon: Icon(FontAwesomeIcons.suitcase, color: Color(0xFF2196f3)),
               title: Text(
                 'Packs',
+                style: TextStyle(fontFamily: 'Poppins', color: Colors.white),
+              ),
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(FontAwesomeIcons.clipboardList,
+                  color: Color(0xFF2196f3)),
+              title: Text(
+                'Services',
                 style: TextStyle(fontFamily: 'Poppins', color: Colors.white),
               ),
             ),
