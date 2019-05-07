@@ -132,11 +132,11 @@ class _UsersPageState extends State<UsersPage> {
     );
   }
 
-  Widget _buttonEmailVerified() {
+  /*Widget _buttonEmailVerified() {
     return new FloatingActionButton(
             backgroundColor: Color(0xFF2196f3),
             child: Icon(Icons.create, color: Colors.white),
             onPressed: () => {},
           );
-  }
+  }*/
 }
