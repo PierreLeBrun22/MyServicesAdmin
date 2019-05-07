@@ -3,6 +3,7 @@ import 'package:myservicesadmin/services/authentication.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:myservicesadmin/Widgets/ServicesPage/AddServicePage.dart';
 import 'package:myservicesadmin/Widgets/ServicesPage/DetailServicePage.dart';
+import 'package:myservicesadmin/services/fetch_data.dart' as dataFetch;
 
 class ServicesPage extends StatefulWidget {
   ServicesPage(
@@ -28,13 +29,14 @@ class _ServicesPageState extends State<ServicesPage> {
           color: Color(0xFF302f33),
         ),
         child: ListView.builder(
-          padding: const EdgeInsets.only(top: 40.0),
+          padding: const EdgeInsets.only(top: 40.0, bottom: 70.0),
           itemCount: widget.services.length,
           itemBuilder: (context, index) {
             final record = widget.services[index].data;
             return Dismissible(
               key: Key(widget.services[index].documentID),
               onDismissed: (direction) {
+                dataFetch.deleteService(widget.services[index].documentID);
                 setState(() {
                   widget.services.removeAt(index);
                 });
@@ -53,7 +55,7 @@ class _ServicesPageState extends State<ServicesPage> {
                     ],
                     borderRadius: new BorderRadius.circular(8.0)),
               ),
-              child: _userListview(context, record),
+              child: _userListview(context, record, widget.services[index].documentID),
             );
           },
         ),
@@ -62,7 +64,7 @@ class _ServicesPageState extends State<ServicesPage> {
     ]));
   }
 
-  Widget _userListview(BuildContext context, dynamic record) {
+  Widget _userListview(BuildContext context, dynamic record, String id) {
     return Container(
       margin: EdgeInsets.all(10.0),
       child: Padding(
@@ -102,7 +104,7 @@ class _ServicesPageState extends State<ServicesPage> {
                 )
               ],
             ),
-            _buttonEdit(context),
+            _buttonEdit(context, record['name'], record['image'], record['description'], record['location'], record['partners'], id),
           ],
         ),
       ),
@@ -120,11 +122,17 @@ class _ServicesPageState extends State<ServicesPage> {
     );
   }
 
-  Widget _buttonEdit(BuildContext context) {
+  Widget _buttonEdit(BuildContext context, String name, String image, String description, String location, List<dynamic> partners, String id) {
     return new FloatingActionButton(
+      heroTag: "buttonEdit" + name,
       backgroundColor: Color(0xFF2196f3),
       child: Icon(Icons.create, color: Colors.white),
-      onPressed: () => {},
+      onPressed: () => {
+        Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => DetailServicesPage(name: name, description: description, image: image, location: location, partners: partners, serviceId: id,)))
+      },
     );
   }
 
@@ -133,8 +141,12 @@ class _ServicesPageState extends State<ServicesPage> {
       alignment: Alignment.bottomRight,
       padding: EdgeInsets.only(right: 10.0, bottom: 10.0),
       child: new FloatingActionButton(
+        heroTag: "AddButton",
         child: Icon(Icons.add),
-        onPressed: () => {},
+        onPressed: () => {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => AddServicesPage()))
+            },
       ),
     );
   }

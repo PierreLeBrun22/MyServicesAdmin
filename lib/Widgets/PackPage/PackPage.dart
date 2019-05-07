@@ -19,8 +19,6 @@ class PackPage extends StatefulWidget {
 }
 
 class _PackPageState extends State<PackPage> {
-
-  
   @override
   Widget build(BuildContext context) {
     return new Expanded(
@@ -30,13 +28,14 @@ class _PackPageState extends State<PackPage> {
           color: Color(0xFF302f33),
         ),
         child: ListView.builder(
-          padding: const EdgeInsets.only(top: 40.0),
+          padding: const EdgeInsets.only(top: 40.0, bottom: 70.0),
           itemCount: widget.packs.length,
           itemBuilder: (context, index) {
             final record = widget.packs[index].data;
             return Dismissible(
               key: Key(widget.packs[index].documentID),
               onDismissed: (direction) {
+                dataFetch.deletePack(widget.packs[index].documentID);
                 setState(() {
                   widget.packs.removeAt(index);
                 });
@@ -55,7 +54,7 @@ class _PackPageState extends State<PackPage> {
                     ],
                     borderRadius: new BorderRadius.circular(8.0)),
               ),
-              child: _userListview(context, record),
+              child: _userListview(context, record, widget.packs[index].documentID),
             );
           },
         ),
@@ -64,7 +63,7 @@ class _PackPageState extends State<PackPage> {
     ]));
   }
 
-  Widget _userListview(BuildContext context, dynamic record) {
+  Widget _userListview(BuildContext context, dynamic record, String serviceId) {
     return Container(
       margin: EdgeInsets.all(10.0),
       child: Padding(
@@ -104,7 +103,7 @@ class _PackPageState extends State<PackPage> {
                 )
               ],
             ),
-            _buttonEdit(context, record['name']),
+            _buttonEdit(context, record['name'], serviceId, record['services']),
           ],
         ),
       ),
@@ -122,12 +121,76 @@ class _PackPageState extends State<PackPage> {
     );
   }
 
-  Widget _buttonEdit(BuildContext context, String name) {
+  Widget _buttonEdit(BuildContext context, String name, String id, List<dynamic> services) {
     return new FloatingActionButton(
-      heroTag: "buttonEdit"+name,
+      heroTag: "buttonEdit" + name,
       backgroundColor: Color(0xFF2196f3),
       child: Icon(Icons.create, color: Colors.white),
-      onPressed: () => {},
+      onPressed: () => {
+        Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => FutureBuilder<List<String>>(
+                            future: dataFetch.getAllServices(),
+                            builder: (context, snapshotAllServices) {
+                              if (snapshotAllServices.hasError) print(snapshotAllServices.error);
+                              return snapshotAllServices.hasData
+                                  ? 
+                                  FutureBuilder<List<String>>(
+                            future: dataFetch.getServicesPackName(services),
+                            builder: (context, snapshotPackServices) {
+                              if (snapshotPackServices.hasError) print(snapshotPackServices.error);
+                              return snapshotPackServices.hasData
+                                  ? DetailPackPage(packName: name, packId: id, allServices: snapshotAllServices.data, packServices: snapshotPackServices.data)
+                                  : new Scaffold(
+                                      body: new Container(
+                                        constraints:
+                                            new BoxConstraints.expand(),
+                                        color: Color(0xFF302f33),
+                                        child: new Stack(
+                                          children: <Widget>[
+                                            new Container(
+                                                margin: new EdgeInsets.only(
+                                                    top: MediaQuery.of(context)
+                                                        .padding
+                                                        .top),
+                                                child: new BackButton(
+                                                    color: Colors.white)),
+                                            Center(
+                                              child:
+                                                  CircularProgressIndicator(),
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                            },
+                          )
+                                  : new Scaffold(
+                                      body: new Container(
+                                        constraints:
+                                            new BoxConstraints.expand(),
+                                        color: Color(0xFF302f33),
+                                        child: new Stack(
+                                          children: <Widget>[
+                                            new Container(
+                                                margin: new EdgeInsets.only(
+                                                    top: MediaQuery.of(context)
+                                                        .padding
+                                                        .top),
+                                                child: new BackButton(
+                                                    color: Colors.white)),
+                                            Center(
+                                              child:
+                                                  CircularProgressIndicator(),
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                            },
+                          )))
+      },
     );
   }
 
@@ -138,8 +201,41 @@ class _PackPageState extends State<PackPage> {
       child: new FloatingActionButton(
         heroTag: "AddButton",
         child: Icon(Icons.add),
-        onPressed: () => { Navigator.push(context, MaterialPageRoute(builder: (context) => AddPackPage(services: snapshot.data))) 
-        },
+        onPressed: () => {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => FutureBuilder<List<String>>(
+                            future: dataFetch.getAllServices(),
+                            builder: (context, snapshot) {
+                              if (snapshot.hasError) print(snapshot.error);
+                              return snapshot.hasData
+                                  ? AddPackPage(services: snapshot.data)
+                                  : new Scaffold(
+                                      body: new Container(
+                                        constraints:
+                                            new BoxConstraints.expand(),
+                                        color: Color(0xFF302f33),
+                                        child: new Stack(
+                                          children: <Widget>[
+                                            new Container(
+                                                margin: new EdgeInsets.only(
+                                                    top: MediaQuery.of(context)
+                                                        .padding
+                                                        .top),
+                                                child: new BackButton(
+                                                    color: Colors.white)),
+                                            Center(
+                                              child:
+                                                  CircularProgressIndicator(),
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                            },
+                          )))
+            },
       ),
     );
   }

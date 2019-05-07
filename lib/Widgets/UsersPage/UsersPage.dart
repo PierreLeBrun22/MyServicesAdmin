@@ -33,7 +33,7 @@ class _UsersPageState extends State<UsersPage> {
               key: Key(record['mail']),
               onDismissed: (direction) {
                 setState(() {
-                  record.removeAt(index);
+                  widget.users.removeAt(index);
                 });
               },
               background: Container(

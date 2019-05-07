@@ -155,6 +155,31 @@ class _StatsPageState extends State<StatsPage> {
                   },
                 ),
                 StreamBuilder<QuerySnapshot>(
+                  stream: Firestore.instance.collection('services').snapshots(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData)
+                      return Center(child: CircularProgressIndicator());
+
+                    return new Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text(
+                          'SERVICES',
+                          style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(height: 5.0),
+                        Text(
+                          snapshot.data.documents.length.toString(),
+                          style: TextStyle(
+                              fontFamily: 'Poppins', color: Color(0xFF2196f3)),
+                        )
+                      ],
+                    );
+                  },
+                ),
+                StreamBuilder<QuerySnapshot>(
                   stream: Firestore.instance.collection('packs').snapshots(),
                   builder: (context, snapshot) {
                     if (!snapshot.hasData)
